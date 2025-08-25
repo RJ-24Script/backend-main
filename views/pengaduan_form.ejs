@@ -1,0 +1,10 @@
+<%- include('partials/head', { title }) %>
+<h2>Form Pengaduan</h2>
+<form method="post" action="/pengaduan">
+<label>Nama <input name="nama" required></label>
+<label>NIK <input name="nik"></label>
+<label>Kontak (HP/Email) <input name="kontak"></label>
+<label>Isi Pengaduan <textarea name="isi" required></textarea></label>
+<button class="btn" type="submit">Kirim</button>
+</form>
+<%- include('partials/footer') %>

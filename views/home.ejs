@@ -1,0 +1,70 @@
+<%- include('partials/head', { title }) %>
+
+
+<section class="hero" style="--hero:url('/img/hero.jpg')">
+<div class="container hero-inner">
+<p class="eyebrow">Portal Resmi</p>
+<h1>Dinas Sosial Kabupaten Manokwari Selatan</h1>
+<p class="lead">Informasi program, berita terbaru, dan layanan pengaduan untuk masyarakat.</p>
+<div class="actions">
+<a class="btn primary" href="/pengaduan"><i class="fa-regular fa-paper-plane"></i> Ajukan Pengaduan</a>
+<a class="btn ghost" href="/program"><i class="fa-solid fa-list-check"></i> Lihat Program</a>
+</div>
+<div class="stats">
+<div class="stat"><span><%= stats?.programCount ?? 0 %></span><small>Program</small></div>
+<div class="stat"><span><%= stats?.beritaCount ?? 0 %></span><small>Berita</small></div>
+<div class="stat"><span><%= stats?.pengaduanCount ?? 0 %></span><small>Pengaduan</small></div>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="container">
+<div class="section-head">
+<h2>Program & Layanan</h2>
+<a class="link" href="/program">Semua program →</a>
+</div>
+<ul class="cards">
+<% (programs || []).forEach(p => { %>
+<li class="card">
+<h3><a href="/program/<%= p.slug %>"><%= p.nama %></a></h3>
+<p><%= (p.deskripsi || '').slice(0, 140) %>...</p>
+</li>
+<% }) %>
+<% if (!programs || programs.length === 0) { %>
+<li class="card placeholder">Belum ada data program.</li>
+<% } %>
+</ul>
+</div>
+</section>
+
+<section class="section alt">
+<div class="container">
+<div class="section-head">
+<h2>Berita Terbaru</h2>
+<a class="link" href="/berita">Semua berita →</a>
+</div>
+<ul class="news">
+<% (news || []).forEach(b => { %>
+<li class="news-item">
+<div class="news-meta"><%= new Date(b.publishedAt).toLocaleDateString('id-ID') %> • <%= b.kategori || 'Umum' %></div>
+<a class="news-title" href="/berita/<%= b.slug %>"><%= b.judul %></a>
+<p class="news-desc"><%= (b.ringkas || '').slice(0,160) %>...</p>
+</li>
+<% }) %>
+<% if (!news || news.length === 0) { %>
+<li class="news-item">Belum ada berita.</li>
+<% } %>
+</ul>
+</div>
+</section>
+
+<section class="cta">
+<div class="container cta-inner">
+<h3>Butuh bantuan atau ingin menyampaikan pengaduan?</h3>
+<a class="btn white" href="/pengaduan"><i class="fa-regular fa-paper-plane"></i> Ajukan Pengaduan</a>
+</div>
+</section>
+
+
+<%- include('partials/footer') %>

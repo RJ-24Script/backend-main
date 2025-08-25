@@ -1,0 +1,11 @@
+<%- include('partials/head', { title }) %>
+<h2>Tambah Berita</h2>
+<form method="post" action="/berita/admin/create">
+  <label>Judul <input name="judul" required></label>
+  <label>Kategori <input name="kategori"></label>
+  <label>Thumbnail URL <input name="thumbnailUrl"></label>
+  <label>Ringkas <textarea name="ringkas"></textarea></label>
+  <label>Konten (HTML) <textarea name="konten" rows="8"></textarea></label>
+  <button class="btn">Simpan</button>
+</form>
+<%- include('partials/footer') %>

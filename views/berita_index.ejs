@@ -1,0 +1,16 @@
+<%- include('partials/head', { title }) %>
+<section class="section">
+<div class="container">
+<h2>Berita</h2>
+<ul class="news large">
+<% list.forEach(b => { %>
+<li class="news-item">
+<div class="news-meta"><%= new Date(b.publishedAt).toLocaleDateString('id-ID') %> • <%= b.kategori || 'Umum' %></div>
+<a class="news-title" href="/berita/<%= b.slug %>"><%= b.judul %></a>
+<p class="news-desc"><%= b.ringkas || '' %></p>
+</li>
+<% }) %>
+</ul>
+</div>
+</section>
+<%- include('partials/footer') %>
