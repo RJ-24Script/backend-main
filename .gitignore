@@ -1,0 +1,30 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+package-lock.json
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Build / cache
+dist/
+build/
+coverage/
+.nyc_output/
+.cache/
+.tmp/
+.vscode/
+.DS_Store
+
+# Sequelize (opsional)
+sequelize-meta.json
+
+# SQLite (kalau pakai)
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
