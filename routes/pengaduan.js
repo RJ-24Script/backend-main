@@ -1,30 +1,48 @@
-// routes/pengaduan.js
-import { Router } from 'express'
+// backend-main/routes/pengaduan.js
+import express from 'express'
 import Pengaduan from '../models/Pengaduan.js'
 
-const router = Router()
+const router = express.Router()
 
 // GET semua pengaduan
 router.get('/', async (req, res) => {
   try {
-    const list = await Pengaduan.findAll({ order: [['createdAt', 'DESC']] })
+    const list = await Pengaduan.findAll({
+      order: [['createdAt', 'DESC']]
+    })
     res.json(list)
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Gagal mengambil data pengaduan' })
   }
 })
 
-// POST pengaduan baru
+// POST tambah pengaduan
 router.post('/', async (req, res) => {
   try {
-    const { nama, nik, hp, pesan } = req.body
-    if (!nama || !nik || !hp || !pesan) {
-      return res.status(400).json({ error: 'Field wajib: nama, nik, hp, pesan' })
-    }
-    const data = await Pengaduan.create({ nama, nik, hp, pesan })
-    res.status(201).json({ message: 'Pengaduan tersimpan', data })
-  } catch (e) {
-    res.status(500).json({ error: e.message })
+    const { nama, email, pesan } = req.body
+    const newItem = await Pengaduan.create({ nama, email, pesan })
+    res.json(newItem)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Gagal menyimpan pengaduan' })
+  }
+})
+
+// (Opsional) PUT update status pengaduan
+router.put('/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params
+    const { status } = req.body
+    const pengaduan = await Pengaduan.findByPk(id)
+    if (!pengaduan) return res.status(404).json({ error: 'Tidak ditemukan' })
+
+    pengaduan.status = status
+    await pengaduan.save()
+    res.json(pengaduan)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Gagal update status' })
   }
 })
 

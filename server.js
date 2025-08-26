@@ -1,60 +1,94 @@
 // server.js
+import dotenv from 'dotenv'
+dotenv.config() // load .env seawal mungkin
+
 import express from 'express'
 import cors from 'cors'
 import morgan from 'morgan'
-import dotenv from 'dotenv'
-import routes from './routes/index.js'
+import helmet from 'helmet'
 
-import sequelize from './db.config.js'
-import Pengaduan from './models/Pengaduan.js'
+import sequelize from './config/database.js'     // << gunakan SATU sumber sequelize
+import routes from './routes/index.js'           // << index.js berisi penggabung semua route (pengaduan, berita, dll)
 
-// Sync DB
-sequelize.sync({ alter: true }).then(() => {
-  console.log('📦 Database sinkron dengan model')
-}).catch(err => {
-  console.error('Gagal sync database:', err)
-})
-
-dotenv.config()
+// ====== INIT ======
 const app = express()
+const PORT = process.env.PORT || 3700
+const NODE_ENV = process.env.NODE_ENV || 'development'
 
-// ===== MIDDLEWARE =====
-app.use(express.json())
-app.use(morgan('dev'))
+// ====== DB SYNC ======
+try {
+  await sequelize.authenticate()
+  console.log('🗄️  Database connected')
+  await sequelize.sync({ alter: true })
+  console.log('📦 Models synchronized')
+} catch (err) {
+  console.error('❌ Database init failed:', err)
+  // kalau mau fail fast:
+  // process.exit(1)
+}
 
-// CORS: izinkan frontend dev & prod
+// ====== MIDDLEWARE ======
+app.use(helmet({
+  crossOriginResourcePolicy: false, // biar image/static bisa di-embed kalau perlu
+}))
+app.use(express.json({ limit: '1mb' }))
+app.use(express.urlencoded({ extended: true }))
+
+if (NODE_ENV !== 'production') {
+  app.use(morgan('dev'))
+}
+
+// CORS allowlist (dev + prod dari .env)
 const allowlist = [
-  'http://localhost:5173',          // Vite dev
-  process.env.FRONTEND_ORIGIN       // isi di .env saat production
+  'http://localhost:5173',            // Vite dev
+  process.env.FRONTEND_ORIGIN || '',  // contoh: https://dinsos.example.go.id
 ].filter(Boolean)
 
 app.use(cors({
   origin(origin, cb) {
+    // allow Non-browser (Postman/SSR) dan origin yang ada di allowlist
     if (!origin || allowlist.includes(origin)) return cb(null, true)
     return cb(new Error('Not allowed by CORS'))
-  }
+  },
+  credentials: true,
 }))
 
-// ===== HEALTHCHECK =====
-app.get('/api/health', (req, res) => {
-  res.json({ ok: true, time: new Date().toISOString() })
+// ====== HEALTHCHECK ======
+app.get('/api/health', (_req, res) => {
+  res.json({ ok: true, env: NODE_ENV, time: new Date().toISOString() })
 })
 
-// ===== API ROUTES =====
+// ====== API ROUTES (prefix /api) ======
 app.use('/api', routes)
+// contoh di routes/index.js:
+//   import { Router } from 'express'
+//   import pengaduan from './pengaduan.js'
+//   const r = Router()
+//   r.use('/pengaduan', pengaduan)
+//   export default r
 
-// ===== 404 handler =====
-app.use('/api', (req, res) => {
+// ====== 404 (khusus /api) ======
+app.use('/api', (_req, res) => {
   res.status(404).json({ error: 'Route not found' })
 })
 
-// ===== ERROR handler =====
-app.use((err, req, res, next) => {
-  console.error(err)
+// ====== ERROR HANDLER GLOBAL ======
+app.use((err, _req, res, _next) => {
+  // Error CORS dari middleware di atas
+  if (err?.message === 'Not allowed by CORS') {
+    return res.status(403).json({ error: 'CORS blocked' })
+  }
+  console.error('💥 Error:', err)
   res.status(500).json({ error: 'Internal Server Error' })
 })
 
-const PORT = process.env.PORT || 3700
+// ====== START ======
 app.listen(PORT, () => {
-  console.log(`✅ API jalan di http://localhost:${PORT}`)
+  console.log(`✅ API ready at http://localhost:${PORT}  (${NODE_ENV})`)
+})
+
+// ====== GRACEFUL SHUTDOWN (opsional tapi bagus) ======
+process.on('SIGINT', () => {
+  console.log('\n🛑 Shutting down...')
+  sequelize.close().finally(() => process.exit(0))
 })
