@@ -1,16 +1,12 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../db.js';
-
+import { DataTypes } from 'sequelize'
+import sequelize from '../config/database.js'
 
 const Berita = sequelize.define('Berita', {
-judul: { type: DataTypes.STRING, allowNull: false },
-slug: { type: DataTypes.STRING, unique: true },
-ringkas: { type: DataTypes.TEXT },
-konten: { type: DataTypes.TEXT },
-kategori: { type: DataTypes.STRING },
-publishedAt: { type: DataTypes.DATE, defaultValue: DataTypes.NOW },
-thumbnailUrl: { type: DataTypes.STRING },
-});
+  judul: { type: DataTypes.STRING, allowNull: false },
+  isi: { type: DataTypes.TEXT, allowNull: false },
+  penulis: { type: DataTypes.STRING, allowNull: true },
+  thumbnail: { type: DataTypes.STRING, allowNull: true },
+  isPublished: { type: DataTypes.BOOLEAN, defaultValue: true },
+}, { tableName: 'berita', timestamps: true })
 
-
-export default Berita;
+export default Berita
