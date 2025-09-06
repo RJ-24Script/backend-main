@@ -54,7 +54,7 @@ if (NODE_ENV !== 'production') {
 // CORS allowlist (dev + prod via .env FRONTEND_ORIGIN)
 const allowlist = [
   'http://localhost:5173',          // Vite dev
-  process.env.FRONTEND_ORIGIN || '',// contoh: https://dinsos.example.go.id
+  process.env.FRONTEND_ORIGIN || 'https://unique-croquembouche-b5bc92.netlify.app/',// contoh: https://dinsos.example.go.id
 ].filter(Boolean)
 
 app.use(cors({
